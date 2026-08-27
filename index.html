@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>オンランチ救援ボタン</title>
+<style>
+:root{
+  --bg:#faf8f5; --fg:#1b1a18; --sub:#8b8681; --line:#e6e1da;
+  --accent:#d9452c; --accent-dark:#a5321f; --accent-fg:#fff; --card:#fff; --chip:#f2eee8;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#141317; --fg:#f2efe9; --sub:#8a857f; --line:#2b2930;
+    --accent:#e85a3f; --accent-dark:#a8402a; --accent-fg:#fff; --card:#1c1b20; --chip:#26242b;
+  }
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:var(--bg);color:var(--fg);
+  font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic",system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;
+  display:flex;flex-direction:column;align-items:center;
+  padding:24px 20px 32px;
+}
+.wrap{width:100%;max-width:720px;flex:1;display:flex;flex-direction:column}
+
+/* ---- top screen ---- */
+#top{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;text-align:center;min-height:70vh}
+.brand{font-size:13px;letter-spacing:.14em;color:var(--sub)}
+#press{
+  border:none;cursor:pointer;background:var(--accent);color:var(--accent-fg);
+  font-family:inherit;font-weight:700;font-size:clamp(24px,6.4vw,38px);
+  line-height:1.4;padding:36px 42px;border-radius:26px;width:100%;max-width:520px;
+  background:linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,0) 55%),var(--accent);
+  box-shadow:
+    0 11px 0 var(--accent-dark),
+    0 13px 3px rgba(0,0,0,.16),
+    0 26px 36px -14px rgba(0,0,0,.45),
+    inset 0 2px 0 rgba(255,255,255,.3),
+    inset 0 -2px 0 rgba(0,0,0,.14);
+  transition:transform .09s ease, box-shadow .09s ease;
+}
+#press:hover{transform:translateY(-2px);box-shadow:0 13px 0 var(--accent-dark),0 15px 3px rgba(0,0,0,.16),0 30px 40px -14px rgba(0,0,0,.45),inset 0 2px 0 rgba(255,255,255,.3),inset 0 -2px 0 rgba(0,0,0,.14)}
+#press:active{transform:translateY(11px);box-shadow:0 0 0 var(--accent-dark),0 2px 2px rgba(0,0,0,.16),0 6px 12px -8px rgba(0,0,0,.45),inset 0 2px 0 rgba(255,255,255,.22),inset 0 -2px 0 rgba(0,0,0,.14)}
+.note{font-size:14px;color:var(--sub);line-height:1.9;max-width:540px}
+.note p+p{margin-top:14px}
+
+/* ---- question screen ---- */
+#qview{display:none;flex:1;flex-direction:column;padding-top:8px}
+.qcard{
+  background:var(--card);border:1px solid var(--line);border-radius:24px;
+  padding:clamp(28px,5vw,44px);min-height:44vh;
+  display:flex;flex-direction:column;justify-content:center;
+}
+#qtext{
+  font-size:clamp(24px,5.2vw,38px);font-weight:700;line-height:1.55;
+  letter-spacing:.01em;opacity:0;transform:translateY(6px);
+  transition:opacity .3s ease, transform .3s ease;
+}
+#qtext.in{opacity:1;transform:none}
+.pass{margin-top:22px;font-size:13px;color:var(--sub)}
+
+/* 主ボタン: 押し込める物理ボタン風 */
+.primary{
+  display:flex;flex-direction:column;align-items:center;
+  width:100%;margin:26px 0 14px;cursor:pointer;border:none;
+  color:var(--accent-fg);font-family:inherit;font-weight:700;
+  font-size:clamp(16px,3.6vw,20px);line-height:1.6;padding:21px 22px;border-radius:20px;
+  background:linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,0) 55%),var(--accent);
+  box-shadow:
+    0 9px 0 var(--accent-dark),
+    0 11px 3px rgba(0,0,0,.16),
+    0 22px 30px -14px rgba(0,0,0,.45),
+    inset 0 2px 0 rgba(255,255,255,.3),
+    inset 0 -2px 0 rgba(0,0,0,.14);
+  transition:transform .09s ease, box-shadow .09s ease;
+}
+.primary:hover{transform:translateY(-2px);box-shadow:0 11px 0 var(--accent-dark),0 13px 3px rgba(0,0,0,.16),0 26px 34px -14px rgba(0,0,0,.45),inset 0 2px 0 rgba(255,255,255,.3),inset 0 -2px 0 rgba(0,0,0,.14)}
+.primary:active{transform:translateY(9px);box-shadow:0 0 0 var(--accent-dark),0 2px 2px rgba(0,0,0,.16),0 5px 10px -7px rgba(0,0,0,.45),inset 0 2px 0 rgba(255,255,255,.22),inset 0 -2px 0 rgba(0,0,0,.14)}
+/* 文言が長いときは自動で小さく */
+#press.long{font-size:clamp(17px,4vw,25px);padding:30px 30px}
+.primary.long #againLabel{font-size:clamp(14px,3vw,16px)}
+
+.utility{display:flex;align-items:center;gap:16px;margin-top:18px;flex-wrap:wrap}
+.link{
+  background:none;border:none;font-family:inherit;font-size:13px;color:var(--sub);
+  cursor:pointer;padding:6px 0;text-decoration:underline;text-underline-offset:3px;
+}
+.link:hover{color:var(--fg)}
+.link[disabled]{opacity:.35;cursor:default;text-decoration:none}
+
+#hist{margin-top:34px;border-top:1px solid var(--line);padding-top:16px;display:none}
+#hist h2{font-size:12px;letter-spacing:.1em;color:var(--sub);font-weight:600;margin-bottom:10px}
+#hist button{
+  display:block;width:100%;text-align:left;background:none;border:none;font-family:inherit;
+  font-size:14px;color:var(--sub);padding:7px 0;cursor:pointer;line-height:1.6;
+  border-bottom:1px solid transparent;
+}
+#hist button:hover{color:var(--fg)}
+
+footer{margin-top:auto;padding-top:36px;font-size:13px;color:var(--sub);text-align:center;line-height:1.9}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <section id="top">
+    <div class="brand">オンランチ 救援ボタン</div>
+    <button id="press">気まずくなったら押す</button>
+    <div class="note">
+      <p>代表者一人が開いて、会話が止まったら押せば大丈夫です。</p>
+      <p>ボタンを押す前によく知らない人がいたら自己紹介と、暑いっすねーとか、食べてるものがなにか、あれっWifiが、とか言えば最大４分くらいは稼げるのでそこから始めてください。</p>
+    </div>
+  </section>
+
+  <section id="qview">
+    <div class="qcard">
+      <p id="qtext"></p>
+      <p class="pass">思いつかなかったらパスでっ言って次のやつ行こう。</p>
+    </div>
+
+    <button class="primary" id="again">
+      <span id="againLabel">別のがいい</span>
+    </button>
+
+    <div class="utility">
+      <button class="link" id="back" disabled>← さっきのに戻る</button>
+      <button class="link" id="home">最初の画面へ</button>
+    </div>
+
+    <div id="hist">
+      <h2>この回で出た質問</h2>
+      <div id="histlist"></div>
+    </div>
+  </section>
+
+  <footer>うまく話が広がったら、そのまま放置してください。</footer>
+</div>
+
+<script>
+/* ===== 質問 ===== */
+const Q = [
+ '最近、人にすすめたもの',
+ '今欲しいけど、まだ買ってないもの',
+ '仕事と関係なく、ちょっとだけ詳しいこと',
+ 'みんな好きだけど、自分は全然ハマらないもの',
+ '一度やって、二度とやらないと決めたこと',
+ 'いま一番、時間を溶かしてるもの',
+ '今から2時間、絶対バレずにサボれるなら何する？',
+ '自分の生活で、一番AIに代わってほしい作業',
+ '仕事中に一番集中できる時間帯',
+ 'リモートワークで、これはセーフだと思ってる行動',
+ '一番最初のバイトか仕事、何だった？',
+ '一番やりたくない業務',
+ '社内で「この人すごいな」と思った瞬間',
+ '正直、名前と顔が一致してない人、何人いる？',
+ '社内で、話したことないけど一回話してみたい人',
+ '仕事以外で、これは続けたいと思ってること',
+];
+
+/* ボタン文言（押した回数で育つ） */
+const LABELS = [
+ '気まずくなったら押す',        // 0回＝トップ画面のみ
+ 'まぁまだ序盤。',
+ '豆知識。口いっぱいにしてもぐもぐしてるふりすれば喋らずにいれます。',
+ 'この部屋ハズレかも。',
+ '5回目の救援要請。緊急の仕事の電話のふりをして逃げるのもありです。',
+ 'もう無理して喋らないで飯食おう。',
+ '7回目。楽しいふりしてますが、みんな早く終われって思ってます。',
+ '8回目。これ給料出るよね。',
+ '9回目。あなたが入ったの大ハズレ部屋でした。',
+];
+const label=n=>LABELS[n]||`${n+1}回目の救援要請`;
+/* 文言をボタンに入れる。長いものは自動で字を小さくする */
+function setLabel(btn,n,limit){
+  const t=label(n);
+  btn.textContent=t;
+  btn.classList.toggle('long', t.length>limit);
+}
+
+/* ---- 永続データ（端末に保存） ---- */
+const KEY_SEEN='onlunch.seen.v1';
+const load=(k,f)=>{try{return JSON.parse(localStorage.getItem(k))??f}catch(e){return f}};
+const save=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+let seen=load(KEY_SEEN,[]);
+
+/* ---- セッション状態 ---- */
+let presses=0, history=[], cursor=-1;
+
+const $=s=>document.querySelector(s);
+const top_=$('#top'), qview=$('#qview'), qtext=$('#qtext'),
+      pressBtn=$('#press'), againBtn=$('#again'), againLabel=$('#againLabel'), backBtn=$('#back'),
+      hist=$('#hist'), histlist=$('#histlist');
+
+function draw(){
+  let fresh=Q.filter(t=>!seen.includes(t));
+  if(!fresh.length){ seen=[]; save(KEY_SEEN,seen); fresh=Q; }
+  return fresh[Math.floor(Math.random()*fresh.length)];
+}
+
+function show(q,pushHistory=true){
+  qtext.classList.remove('in');
+  setTimeout(()=>{ qtext.textContent=q; qtext.classList.add('in'); },160);
+  if(pushHistory){
+    history=history.slice(0,cursor+1);
+    history.push(q); cursor=history.length-1;
+    if(!seen.includes(q)){ seen.push(q); save(KEY_SEEN,seen); }
+  }
+  setLabel(againLabel, presses, 16);
+  againBtn.classList.toggle('long', label(presses).length>16);
+  backBtn.disabled = cursor<=0;
+  renderHist();
+}
+
+function renderHist(){
+  if(history.length<2){ hist.style.display='none'; return }
+  hist.style.display='block';
+  histlist.innerHTML='';
+  history.forEach((q,i)=>{
+    const b=document.createElement('button');
+    b.textContent=(i===cursor?'▸ ':'　')+q;
+    b.onclick=()=>{ cursor=i; show(history[i],false); };
+    histlist.appendChild(b);
+  });
+}
+
+pressBtn.onclick=()=>{
+  presses++;
+  top_.style.display='none'; qview.style.display='flex';
+  show(draw());
+};
+
+againBtn.onclick=()=>{ presses++; show(draw()); };
+
+backBtn.onclick=()=>{ if(cursor>0){ cursor--; show(history[cursor],false); } };
+
+$('#home').onclick=()=>{
+  qview.style.display='none'; top_.style.display='flex';
+  setLabel(pressBtn, presses, 12);
+};
+</script>
+</body>
+</html>
