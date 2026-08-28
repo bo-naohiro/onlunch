@@ -102,6 +102,7 @@ body{
 #hist button:hover{color:var(--fg)}
 
 footer{margin-top:auto;padding-top:36px;font-size:13px;color:var(--sub);text-align:center;line-height:1.9}
+.foot{font-size:13px;color:var(--sub);line-height:1.9;margin-top:14px}
 </style>
 </head>
 <body>
@@ -131,6 +132,8 @@ footer{margin-top:auto;padding-top:36px;font-size:13px;color:var(--sub);text-ali
       <button class="link" id="back" disabled>← さっきのに戻る</button>
       <button class="link" id="home">最初の画面へ</button>
     </div>
+
+    <p class="foot">うまく話が広がったら、そのまま放置してください。</p>
 
     <div id="hist">
       <h2>この回で出た質問</h2>
@@ -201,6 +204,7 @@ let presses=0, history=[], cursor=-1;
 const $=s=>document.querySelector(s);
 const top_=$('#top'), qview=$('#qview'), qtext=$('#qtext'),
       pressBtn=$('#press'), againBtn=$('#again'), againLabel=$('#againLabel'), backBtn=$('#back'),
+      footer=document.querySelector('footer'),
       hist=$('#hist'), histlist=$('#histlist');
 
 function draw(){
@@ -237,7 +241,7 @@ function renderHist(){
 
 pressBtn.onclick=()=>{
   presses++;
-  top_.style.display='none'; qview.style.display='flex';
+  top_.style.display='none'; qview.style.display='flex'; footer.style.display='none';
   show(draw());
 };
 
@@ -246,7 +250,7 @@ againBtn.onclick=()=>{ presses++; show(draw()); };
 backBtn.onclick=()=>{ if(cursor>0){ cursor--; show(history[cursor],false); } };
 
 $('#home').onclick=()=>{
-  qview.style.display='none'; top_.style.display='flex';
+  qview.style.display='none'; top_.style.display='flex'; footer.style.display='';
   setLabel(pressBtn, presses, 12);
 };
 </script>
