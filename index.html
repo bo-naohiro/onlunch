@@ -79,9 +79,6 @@ body{
 }
 .primary:hover{transform:translateY(-2px);box-shadow:0 11px 0 var(--accent-dark),0 13px 3px rgba(0,0,0,.16),0 26px 34px -14px rgba(0,0,0,.45),inset 0 2px 0 rgba(255,255,255,.3),inset 0 -2px 0 rgba(0,0,0,.14)}
 .primary:active{transform:translateY(9px);box-shadow:0 0 0 var(--accent-dark),0 2px 2px rgba(0,0,0,.16),0 5px 10px -7px rgba(0,0,0,.45),inset 0 2px 0 rgba(255,255,255,.22),inset 0 -2px 0 rgba(0,0,0,.14)}
-/* 文言が長いときは自動で小さく */
-#press.long{font-size:clamp(17px,4vw,25px);padding:30px 30px}
-.primary.long #againLabel{font-size:clamp(14px,3vw,16px)}
 
 .subhint{text-align:center;font-size:13px;color:var(--sub);margin-top:4px}
 .utility{display:flex;align-items:center;gap:16px;margin-top:18px;flex-wrap:wrap}
@@ -119,11 +116,11 @@ footer{margin-top:auto;padding-top:36px;font-size:13px;color:var(--sub);text-ali
   <section id="qview">
     <div class="qcard">
       <p id="qtext"></p>
-      <p class="pass">思いつかなかったり、微妙だったりしたら、ボタンを押してどんどん次のやつに行ってください。</p>
+      <p class="pass">思いつかなかったり、微妙だったりしたら、ボタンを押してどんどん次のお題に進んでください。</p>
     </div>
 
     <button class="primary" id="again">
-      <span id="againLabel">別のがいい</span>
+      <span id="againLabel">話題がほしいときに押す</span>
     </button>
     <p class="subhint">押すともう1個</p>
 
@@ -170,27 +167,6 @@ const Q = [
  '一回ちゃんと習ってみたいこと',
 ];
 
-/* ボタン文言（押した回数で育つ） */
-const LABELS = [
- '話題がほしいときに押す',       // 0回＝トップ画面のみ
- '次の話題',
- '3個目いきます',
- '4個目。ペース速いですね',
- '5個目。よく喋ってますね',
- '6個目。話題の消費が早い',
- '7個目。そろそろネタ切れかと思いきや、まだあります',
- '8個目。この部屋、よく回ってます',
- '9個目。もはや取材',
- '10個目。ここまで来た部屋は珍しいです',
-];
-const label=n=>LABELS[n]||`${n+1}個目`;
-/* 文言をボタンに入れる。長いものは自動で字を小さくする */
-function setLabel(btn,n,limit){
-  const t=label(n);
-  btn.textContent=t;
-  btn.classList.toggle('long', t.length>limit);
-}
-
 /* ---- 永続データ（端末に保存） ---- */
 const KEY_SEEN='onlunch.seen.v1';
 const load=(k,f)=>{try{return JSON.parse(localStorage.getItem(k))??f}catch(e){return f}};
@@ -198,7 +174,7 @@ const save=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
 let seen=load(KEY_SEEN,[]);
 
 /* ---- セッション状態 ---- */
-let presses=0, history=[], cursor=-1;
+let history=[], cursor=-1;
 
 const $=s=>document.querySelector(s);
 const top_=$('#top'), qview=$('#qview'), qtext=$('#qtext'),
@@ -220,8 +196,6 @@ function show(q,pushHistory=true){
     history.push(q); cursor=history.length-1;
     if(!seen.includes(q)){ seen.push(q); save(KEY_SEEN,seen); }
   }
-  setLabel(againLabel, presses, 16);
-  againBtn.classList.toggle('long', label(presses).length>16);
   backBtn.disabled = cursor<=0;
   renderHist();
 }
@@ -239,18 +213,16 @@ function renderHist(){
 }
 
 pressBtn.onclick=()=>{
-  presses++;
   top_.style.display='none'; qview.style.display='flex'; footer.style.display='none';
   show(draw());
 };
 
-againBtn.onclick=()=>{ presses++; show(draw()); };
+againBtn.onclick=()=>{ show(draw()); };
 
 backBtn.onclick=()=>{ if(cursor>0){ cursor--; show(history[cursor],false); } };
 
 $('#home').onclick=()=>{
   qview.style.display='none'; top_.style.display='flex'; footer.style.display='';
-  setLabel(pressBtn, presses, 12);
 };
 </script>
 </body>
